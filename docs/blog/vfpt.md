@@ -6,7 +6,7 @@ The goal of the extension is to complement Visual F# Tools by adding missing fea
 A special thing about [this project](https://github.com/fsprojects/VisualFSharpPowerTools) is that it's a collective effort of F# community where we work alongside with Visual F# Team in order to provide a complete toolset for F# users in Visual Studio.
 
 The extension supports Visual Studio 2013 and Visual Studio 2012. 
-In order to install, searching for "FSharp Power Tools" in "Tools --> Extensions and Updates --> Online". You can also download from the [Visual Studio Gallery](http://visualstudiogallery.msdn.microsoft.com/136b942e-9f2c-4c0b-8bac-86d774189cff). 
+In order to install, search for "FSharp Power Tools" in "Tools --> Extensions and Updates --> Online". You can also download it from the [Visual Studio Gallery](http://visualstudiogallery.msdn.microsoft.com/136b942e-9f2c-4c0b-8bac-86d774189cff). 
 The extension consists of a variety of functionalities that may not fit preferences of everyone; we provide options to tweak it for your own tastes.
 
 ![General options](general_options.png)
@@ -16,7 +16,7 @@ Today we would like to share the story behind the project.
 
 ### How did it get started?
 There is a vicious circle argument floating around the F# community that a big hurdle for adopting F# is our incomplete tooling story. 
-While we certainly have the best IDE support (in Visual Studio and Xamarin Studio) for any statically-typed functional programming language in the wild, people keep referring to C# support in Visual Studio (plus ReSharper) and expect the same level of F# support before even looking into the language. 
+While we certainly have the best IDE support (in Visual Studio and Xamarin Studio) among all statically-typed functional programming languages in the wild, people keep referring to C# support in Visual Studio (plus ReSharper) and expect the same level of F# support before even looking into the language. 
 While we believe that F# is a superior general-purpose language and it stands out on its own, there are lots of rooms for improvement in tooling area.
 
 After longing for [ReSharper support](http://activemesa.com/fsharper) for [a few years](https://github.com/JetBrains/FSharper) without success, we finally attempted to do something about the situation. 
@@ -57,7 +57,7 @@ There are ways to improve these features, let us know what you think.
 #### NavigateTo
 It's one of our most favorite navigational features. 
 If you use Visual Studio 2013, there is [an important improvement](http://blogs.msdn.com/b/visualstudio/archive/2013/07/15/visual-studio-2013-new-editor-features.aspx) where NavigateTo (`Ctrl-,`) now delivers results via a non-modal dialog. 
-Just type the identifier you like and you've got all relevant results from projects for quick navigation. 
+Just type the identifier you like (or a part of it) and you've got all relevant results from projects for quick navigation. 
 Yes, it means that this works seamlessly on mixed F#/C# solutions (refer to the screencast below). 
 ![NavigateTo](navigate_to.gif)
 
