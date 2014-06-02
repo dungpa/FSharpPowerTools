@@ -5,7 +5,7 @@ We are pleased to introduce [Visual F# Power Tools](http://visualstudiogallery.m
 The goal of the extension is to complement Visual F# Tools by adding missing features such as semantic highlighting, rename refactoring, find all references, etc.
 A special thing about [this project](https://github.com/fsprojects/VisualFSharpPowerTools) is that it's a collective effort of F# community where we work alongside with Visual F# Team in order to provide a complete toolset for F# users in Visual Studio.
 
-The extension supports VS2013 and VS2012. In order to install, searching for "FSharp Power Tools" in "Tools --> Extensions and Updates --> Online". You can also download from the [Visual Studio Gallery](http://visualstudiogallery.msdn.microsoft.com/136b942e-9f2c-4c0b-8bac-86d774189cff). The extension consists of a variety of functionalities that may not fit preferences of everyone; therefore, we provide options to tweak it for your own tastes.
+The extension supports Visual Studio 2013 and Visual Studio 2012. In order to install, searching for "FSharp Power Tools" in "Tools --> Extensions and Updates --> Online". You can also download from the [Visual Studio Gallery](http://visualstudiogallery.msdn.microsoft.com/136b942e-9f2c-4c0b-8bac-86d774189cff). The extension consists of a variety of functionalities that may not fit preferences of everyone; therefore, we provide options to tweak it for your own tastes.
 
 ![General options](general_options.png)
 
@@ -37,12 +37,12 @@ This is a feature that once we have, it's really hard to leave without. Putting 
 No more string search, no more browsing manually in order to look for certain symbols. Similarly, we have `Refactor -> Rename` for all symbols defined in current solution. There are ways to improve these features, let us know what you think.
 
 #### NavigateTo
-It's one of our most favorite navigational features. If you use Visual Studio 2013, there is [an important improvement](http://blogs.msdn.com/b/visualstudio/archive/2013/07/15/visual-studio-2013-new-editor-features.aspx) where NavigateTo (`Ctrl-``) now delivers results via a non-modal dialog. Just type the identifier you like and you've got all relevant results from projects for quick navigation. Yes, it means that this works seamlessly on mixed F#/C# solutions (see the screencast below).
+It's one of our most favorite navigational features. If you use Visual Studio 2013, there is [an important improvement](http://blogs.msdn.com/b/visualstudio/archive/2013/07/15/visual-studio-2013-new-editor-features.aspx) where NavigateTo (`Ctrl-,`) now delivers results via a non-modal dialog. Just type the identifier you like and you've got all relevant results from projects for quick navigation. Yes, it means that this works seamlessly on mixed F#/C# solutions (see the screencast below). 
 ![NavigateTo](navigate_to.gif)
 
 ### What's next?
 
-Recently, we have been working on a few code generation features such as Implement interface Record stub generation, etc. While F# code is very succinct in general, there are situations where contextual code generation could be of tremendous help. For example, we have used Implement interface to dogfood a number of features on the way. The infrastructure for code generation has been done, we hope to get to [resolving open statements](http://vfpt.uservoice.com/forums/247560-general/suggestions/5784677-resolve-unopend-namespace-or-module) soon. Stay tuned for updates.
+Recently, we have been working on a few code generation features such as Implement interface, Record stub generation, etc. While F# code is very succinct in general, there are situations where contextual code generation could be of tremendous help. For example, we have used Implement interface to dogfood a number of features on the way. The infrastructure for code generation has been done, we hope to get to [resolving open statements](http://vfpt.uservoice.com/forums/247560-general/suggestions/5784677-resolve-unopend-namespace-or-module) soon. Stay tuned for updates.
 
 Another area for improvement is [C# interoperability](http://vfpt.uservoice.com/forums/247560-general/suggestions/5800259-make-find-all-references-rename-refactoring-a) where our features should be aware of referenced C# code. If you would like us to give this a higher priority, please let us know by comments or voting. There have been requests to implement more [refactoring features](http://vfpt.uservoice.com/forums/247560-general/suggestions/5737241-add-extract-method-refactoring). They are indeed challenging and require significant involvement of FCS. But of course, it's fun like the feeling we have since day one of this project.
 
