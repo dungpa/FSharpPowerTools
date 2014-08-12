@@ -7,8 +7,15 @@ open Microsoft.VisualStudio.Utilities
 open Microsoft.VisualStudio.Text.Operations
 open Microsoft.VisualStudio.Shell.Interop
 open Microsoft.VisualStudio
+open FoqNew
 
 let createDocumentFactoryService() =
+//    Mock<ITextDocumentFactoryService>()
+//        .SetupByName("TryGetTextDocument")
+//        .Calls<ITextBuffer * ITextDocument>(fun (textBuffer, textDoc) ->
+//            let textDocument = ref textDoc
+//            textBuffer.Properties.TryGetProperty(typeof<ITextDocument>, textDocument), !textDocument)
+//        .Create()
     { 
         new ITextDocumentFactoryService with
             member __.CreateAndLoadTextDocument(_filePath: string, _contentType: IContentType): ITextDocument = notimpl
@@ -25,6 +32,10 @@ let createDocumentFactoryService() =
     }
 
 let createSVsResourceManager() =
+//    Mock<IVsResourceManager>()
+//        .SetupByName("LoadResourceBitmap")
+//        .Returns((int VSConstants.S_FALSE, IntPtr.Zero))
+//        .Create()
     {
         new IVsResourceManager with
             member __.GetSatelliteAssemblyPath(assemblyPath: string, lcid: int, pbstrPath: byref<string>): int = 
@@ -49,6 +60,12 @@ let createSVsResourceManager() =
     }
 
 let createVsSolutionBuildManager2() =
+//    Mock<IVsSolutionBuildManager2>()
+//        .SetupByName("AdviseUpdateSolutionEvents")
+//        .Returns((int VSConstants.S_OK, 0u))
+//        .Setup(fun x -> <@ x.UnadviseUpdateSolutionEvents (any()) @>)
+//        .Returns(int VSConstants.S_OK)
+//        .Create()
     {
         new IVsSolutionBuildManager2 with
             member __.AdviseUpdateSolutionEvents(pIVsUpdateSolutionEvents: IVsUpdateSolutionEvents, pdwCookie: byref<uint32>): int = 

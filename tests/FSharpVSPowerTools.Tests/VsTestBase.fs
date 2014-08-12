@@ -3,7 +3,7 @@
 open TestUtilities.Mocks
 open FSharpVSPowerTools
 open FSharpVSPowerTools.ProjectSystem
-open Foq
+open FoqNew
 open Microsoft.VisualStudio.Editor
 open Microsoft.VisualStudio.Text.Classification
 open Microsoft.VisualStudio.Text.Operations
