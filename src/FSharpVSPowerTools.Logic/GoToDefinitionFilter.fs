@@ -32,6 +32,20 @@ type NavigationPreference =
     | SymbolSource
     | Metadata
 
+[<RequireQualifiedAccess>]
+[<NoComparison>]
+type SourceOrigin =
+    | Local of path: string * range: Range.range
+    | Remote of url: string * range: Range.range
+
+type ProxyDomain() =
+    inherit MarshalByRefObject()
+    member __.GetAssembly(assemblyPath: string) =
+        try
+            Assembly.LoadFrom(assemblyPath)
+        with ex ->
+            null
+
 type internal UrlChangeEventArgs(url: string) =
     inherit EventArgs()
     member __.Url = url
@@ -307,18 +321,21 @@ type GoToDefinitionFilter(textDocument: ITextDocument,
         | Entity(Enum as e, _, _) when not e.IsFSharp -> false
         | _ -> true
 
-    let replace (b:string) c (a:string) = a.Replace(b, c)
+    let replace (oldValue: string) newValue (str: string) = str.Replace(oldValue, newValue)
 
     let getSymbolCacheDir() = 
         let dte = serviceProvider.GetService<EnvDTE.DTE, SDTE>()
         let keyName = String.Format(@"Software\Microsoft\VisualStudio\{0}.0\Debugger",
                                     dte.Version |> VisualStudioVersion.fromDTEVersion |> VisualStudioVersion.toString)
         use key = Registry.CurrentUser.OpenSubKey(keyName)
-        key.GetValue("SymbolCacheDir", null)
+        key.GetValue(name = "SymbolCacheDir", defaultValue = null)
         |> Option.ofNull
         |> Option.bind (fun o ->
             let s = string o
             if String.IsNullOrEmpty s then None else Some s)
+
+    let navigateToLocal (path: string) (r: Range.range) = 
+        serviceProvider.NavigateTo(path, r.StartLine-1, r.StartColumn, r.EndLine-1, r.EndColumn)
 
     let navigateToSource (url: string) (range: Range.range) = 
         async {
@@ -375,55 +392,67 @@ type GoToDefinitionFilter(textDocument: ITextDocument,
             let symbolCache = SymbolCache(cacheDir)
             let pdbReader = symbolCache.ReadPdb pdbStream pdbPath
             
-            if pdbReader.IsSourceIndexed then   
-                let range = fsSymbol.ImplementationLocation 
-                // Dummy range may be returned if FCS can't fully read C# assemblies
-                if range.IsNone || range = Some Range.rangeStartup then
-                    let! mem = 
-                        match fsSymbol with
-                        | MemberFunctionOrValue mem ->
-                            Some mem
-                        | TypedAstPatterns.Entity(entity, _, _) ->
-                            entity.MembersFunctionsAndValues 
-                            |> Seq.tryFind (fun mem -> mem.IsImplicitConstructor || mem.DisplayName = ".ctor")
-                            |> Option.orTry (fun _ ->
-                                Logging.logWarning "Can't find type constructors; fall back to the first type member."
-                                entity.MembersFunctionsAndValues |> Seq.tryHead)
-                        | _ -> None
-                    let! fullName = mem.LogicalEnclosingEntity.TryFullName
-                    Logging.logWarning "Try to find source location by reflection from '%s'." assemblyPath
-                    let dll = Assembly.LoadFrom assemblyPath
-                    let! typ = dll.DefinedTypes |> Seq.tryFind (fun typ -> typ.FullName = fullName)
-                    // NOTE: we will not be able to distinguish between overloaded members.
-                    let! mbr = 
-                        if mem.IsProperty then
-                            typ.GetProperties() 
-                            |> Seq.tryPick (fun mbr -> if mbr.Name = mem.DisplayName then Some (mbr :> MemberInfo) else None)
-                        elif mem.IsEvent then
-                            typ.GetEvents() 
-                            |> Seq.tryPick (fun mbr -> if mbr.Name = mem.DisplayName then Some (mbr :> MemberInfo) else None)
-                        else typ.GetMembers() |> Seq.tryFind (fun mbr -> mbr.Name = mem.DisplayName)
-                    let! mth = pdbReader.GetMethod mbr.MetadataToken
-                    let! sp = mth.SequencePoints |> Seq.tryHead
-                    let! url = pdbReader.GetDownloadUrl(sp.Document.SourceFilePath)
-                    let dummyPos = Range.mkPos (sp.Line-1) sp.Column
-                    let inferedRange = Range.mkRange url dummyPos dummyPos
-                    return (url, inferedRange)
+            let range = fsSymbol.ImplementationLocation 
+            // Dummy range may be returned if FCS dealt with C# assemblies
+            if range.IsNone || range = Some Range.rangeStartup then
+                let! mem = 
+                    match fsSymbol with
+                    | MemberFunctionOrValue mem ->
+                        Some mem
+                    | TypedAstPatterns.Entity(entity, _, _) ->
+                        entity.MembersFunctionsAndValues 
+                        |> Seq.tryFind (fun mem -> mem.IsImplicitConstructor || mem.DisplayName = ".ctor")
+                        |> Option.orTry (fun _ ->
+                            Logging.logWarning "Can't find type constructors; fall back to the first type member."
+                            entity.MembersFunctionsAndValues |> Seq.tryHead)
+                    | _ -> None
+                let! fullName = mem.LogicalEnclosingEntity.TryFullName
+                Logging.logWarning "Try to find source location by reflection from '%s'." assemblyPath
+                let setup = AppDomain.CurrentDomain.SetupInformation
+                let domain = AppDomain.CreateDomain(friendlyName = "NavigateToSource", securityInfo = null, info = setup)
+                let typ = typeof<ProxyDomain>
+                let proxy = domain.CreateInstanceAndUnwrap(
+                                typ.Assembly.FullName,
+                                typ.FullName) :?> ProxyDomain
+                let assembly = proxy.GetAssembly(assemblyPath)
+                let! typ = assembly.DefinedTypes |> Seq.tryFind (fun typ -> typ.FullName = fullName)
+                // NOTE: we will not be able to distinguish between overloaded members.
+                let! mbr = 
+                    if mem.IsProperty then
+                        typ.GetProperties() 
+                        |> Seq.tryPick (fun mbr -> 
+                            if mbr.Name = mem.DisplayName then Some (mbr :> MemberInfo) else None)
+                    elif mem.IsEvent then
+                        typ.GetEvents() 
+                        |> Seq.tryPick (fun mbr -> 
+                            if mbr.Name = mem.DisplayName then Some (mbr :> MemberInfo) else None)
+                    else typ.GetMembers() |> Seq.tryFind (fun mbr -> mbr.Name = mem.DisplayName)
+                let! mth = pdbReader.GetMethod mbr.MetadataToken
+                let! sp = mth.SequencePoints |> Seq.tryHead
+                let fakePos = Range.mkPos (sp.Line-1) sp.Column
+                let sourceFilePath = sp.Document.SourceFilePath
+                // If the corresponding file e.g. a C# one is on disk, we navigate locally.
+                if File.Exists(sourceFilePath) then
+                    let inferedRange = Range.mkRange sourceFilePath fakePos fakePos
+                    return SourceOrigin.Local(sourceFilePath, inferedRange)
                 else
-                    let! range = range
-                    // Fsi files don't appear on symbol servers, so we try to get urls via its associated fs files
+                    let! url = pdbReader.GetDownloadUrl(sourceFilePath)
+                    let inferedRange = Range.mkRange url fakePos fakePos
+                    return SourceOrigin.Remote(url, inferedRange)
+            else
+                let! range = range
+                let path = fullPathOf range.FileName
+                if File.Exists(path) then
+                    return SourceOrigin.Local(path, range)
+                else
                     let path, isFsiFile = 
-                        let path = fullPathOf range.FileName
                         let isFsiFile = path.EndsWith(".fsi", StringComparison.OrdinalIgnoreCase)
                         let newPath = if isFsiFile then changeExt ".fs" path else path
                         newPath, isFsiFile
-                    let! url = pdbReader.GetDownloadUrl(path)
-                    if isFsiFile then 
-                        return (changeExt ".fsi" url, range)
-                    else 
-                        return (url, range)
-            else 
-                return! None
+                    // Fsi files don't appear on symbol servers, so we try to get urls via its associated fs files.
+                    let! fakeUrl = pdbReader.GetDownloadUrl(path)
+                    let realUrl = if isFsiFile then changeExt ".fsi" fakeUrl else fakeUrl
+                    return SourceOrigin.Remote(realUrl, range)
         }
 
     let cancellationToken = Atom None
@@ -467,7 +496,9 @@ type GoToDefinitionFilter(textDocument: ITextDocument,
                                 Logging.logWarning "Can't find navigation information for %s." symbol.FullName
                         else
                             match tryFindSourceUrl symbol with
-                            | Some (url, range) ->
+                            | Some (SourceOrigin.Local(path, range)) ->
+                                return navigateToLocal path range
+                            | Some (SourceOrigin.Remote(url, range)) ->
                                 return! navigateToSource url range
                             | None ->
                                 match pref with
@@ -477,7 +508,6 @@ type GoToDefinitionFilter(textDocument: ITextDocument,
                                 | _ ->
                                     let statusBar = serviceProvider.GetService<IVsStatusbar, SVsStatusbar>()
                                     statusBar.SetText(Resource.goToDefinitionNoSourceSymbolMessage) |> ignore
-                                    return ()
             }
         Async.StartInThreadPoolSafe (worker, cancelToken.Token)
 
