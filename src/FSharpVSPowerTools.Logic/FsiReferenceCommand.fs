@@ -1,4 +1,4 @@
-﻿namespace FSharpVSPowerTools.Reference
+﻿namespace FSharpVSPowerTools.FSharpInteractive
 
 open FSharpVSPowerTools
 open EnvDTE80

@@ -13,7 +13,7 @@ using FSharpVSPowerTools.TaskList;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using Microsoft.VisualStudio.ComponentModelHost;
-using FSharpVSPowerTools.Reference;
+using FSharpVSPowerTools.FSharpInteractive;
 
 namespace FSharpVSPowerTools
 {

@@ -224,7 +224,13 @@
       <Link>TaskList/TaskListCommentFilter.fs</Link>
     </Compile>
     <Compile Include="FsiReferenceCommand.fs">
-      <Link>Reference/FsiReferenceCommand.fs</Link>
+      <Link>FSharpInteractive/FsiReferenceCommand.fs</Link>
+    </Compile>
+    <Compile Include="FsiClassifier.fs">
+      <Link>FSharpInteractive/FsiClassifier.fs</Link>
+    </Compile>
+    <Compile Include="FsiClassifierProvider.fs">
+      <Link>FSharpInteractive/FsiClassifierProvider.fs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
