@@ -72,10 +72,10 @@ module Lexer =
             lexStates.[line]
 
     /// Return all tokens of current line
-    let tokenizeLine source (args: string[]) line lineStr queryLexState =
+    let tokenizeLine (source: string) (args: string []) (line: int) lineStr queryLexState =
         let defines =
             args |> Seq.choose (fun s -> if s.StartsWith "--define:" then Some s.[9..] else None)
-                    |> Seq.toList
+                 |> Seq.toList
         let sourceTokenizer = SourceTokenizer(defines, "/tmp.fsx")
         let lineTokenizer = sourceTokenizer.CreateLineTokenizer lineStr
         let rec loop lexState acc =

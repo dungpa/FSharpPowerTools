@@ -145,11 +145,17 @@ type VSLanguageService
         Lexer.getSymbol source line col lineStr SymbolLookupKind.Fuzzy args (buildQueryLexState point.Snapshot.TextBuffer)
         |> Option.map (fun symbol -> snapshotSpanFromRange point.Snapshot symbol.Range, symbol)
 
-    member __.TokenizeLine(textBuffer: ITextBuffer, args: string[], line) =
+    member __.TokenizeLine(textBuffer: ITextBuffer, args: string [], line) =
         let snapshot = textBuffer.CurrentSnapshot
         let source = snapshot.GetText()
         let lineStr = snapshot.GetLineFromLineNumber(line).GetText()
         Lexer.tokenizeLine source args line lineStr (buildQueryLexState textBuffer)
+
+    member __.TokenizeSource(source: string, lines: string [], args: string []) =
+        [
+            for i in 0..lines.Length-1 -> 
+                Lexer.tokenizeLine source args i lines.[i] Lexer.queryLexState
+        ]
 
     member __.ParseFileInProject (currentFile: string, source, projectProvider: IProjectProvider) =
         async {
