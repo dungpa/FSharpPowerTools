@@ -7,7 +7,6 @@ open System.ComponentModel.Composition
 open Microsoft.VisualStudio.Utilities
 open FSharpVSPowerTools.ProjectSystem
 open Microsoft.VisualStudio.Text.Editor
-open FSharpVSPowerTools
 
 [<ContentType("text")>]
 [<Export(typeof<IClassifierProvider>)>]
@@ -23,9 +22,13 @@ type FsiClassifierProvider() =
 
     interface IClassifierProvider with
         member x.GetClassifier(textBuffer: ITextBuffer) = 
-            // TODO: enhance recognition of F# Interactive buffer
-            let currentText = textBuffer.CurrentSnapshot.GetText()
-            if String.IsNullOrEmpty(currentText) || currentText.StartsWith("Microsoft (R) F# Interactive version ", StringComparison.Ordinal) then
-                textBuffer.Properties.GetOrCreateSingletonProperty(serviceType,
-                       fun () -> new FsiClassifier(textBuffer, x.ClassificationRegistry, x.FSharpVsLanguageService) :> _)
-            else null
+            match textBuffer.ContentType.DisplayName with
+            | "text" ->
+                let content = textBuffer.CurrentSnapshot.GetText()
+                if String.IsNullOrEmpty content || 
+                   content.StartsWith("\r\nMicrosoft (R) F# Interactive version ", StringComparison.Ordinal) then
+                    textBuffer.Properties.GetOrCreateSingletonProperty(serviceType,
+                           fun () -> new FsiClassifier(textBuffer, x.ClassificationRegistry, x.FSharpVsLanguageService) :> _)
+                else null
+            | _ ->
+                null
