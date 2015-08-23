@@ -68,6 +68,7 @@ type private ProjectUniqueName = string
 type ProjectFactory
     [<ImportingConstructor>] 
     ([<Import(typeof<SVsServiceProvider>)>] serviceProvider: IServiceProvider,
+     solutionBuildEventListener: SolutionBuildEventListener, 
      openDocumentsTracker: OpenDocumentsTracker,
      vsLanguageService: VSLanguageService) =
     let dte = serviceProvider.GetService<DTE, SDTE>()
@@ -99,9 +100,8 @@ type ProjectFactory
         cache.Clear()
         vsLanguageService.ClearCaches()
 
-    let solutionBuildEventListener = new SolutionBuildEventListener(serviceProvider)
     // When active configuration changes, all project providers are stale so we clear our own caches
-    do solutionBuildEventListener.ActiveConfigChanged.Add(fun _ -> clearCaches())
+    let activeConfigChangeSubscription = solutionBuildEventListener.ActiveConfigChanged.Subscribe(fun _ -> clearCaches())
 
     do match events with
         | Some events ->
@@ -250,4 +250,4 @@ type ProjectFactory
 
     interface IDisposable with
         member __.Dispose() = 
-            (solutionBuildEventListener :> IDisposable).Dispose()
+            activeConfigChangeSubscription.Dispose()

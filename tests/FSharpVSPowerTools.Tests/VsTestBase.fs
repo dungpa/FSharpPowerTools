@@ -7,7 +7,7 @@ open Microsoft.VisualStudio.Shell.Interop
 
 /// Replace internal project providers by external ones for testing
 type MockProjectFactory(serviceProvider, openDocTracker, vsLanguageService, dte: MockDTE) =
-    inherit ProjectFactory(serviceProvider, openDocTracker, vsLanguageService)
+    inherit ProjectFactory(serviceProvider, openDocTracker, vsLanguageService, null)
     override __.CreateForProject(p) = 
         dte.GetProject(p.FullName)
 

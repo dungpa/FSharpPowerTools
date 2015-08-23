@@ -45,7 +45,8 @@ namespace FSharpVSPowerTools
         internal static Lazy<DTE2> DTE
             = new Lazy<DTE2>(() => ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE2);
 
-        internal CrossSolutionTaskListCommentManager taskListCommentManager;
+        private CrossSolutionTaskListCommentManager taskListCommentManager;
+        private SolutionBuildEventListener solutionBuildEventListener;
 
         protected override void Initialize()
         {
@@ -64,13 +65,13 @@ namespace FSharpVSPowerTools
 
             serviceContainer.AddService(typeof(IGlobalOptions),
                 delegate { return GetDialogPage(typeof(GlobalOptionsPage)); }, promote: true);
-
+            
             var generalOptions = GetService(typeof(IGeneralOptions)) as IGeneralOptions;
             PerformRegistrations(generalOptions);
 
             library = new FSharpLibrary(Constants.guidSymbolLibrary);
             library.LibraryCapabilities = (_LIB_FLAGS2)_LIB_FLAGS.LF_PROJECT;
-
+            
             RegisterLibrary();
         }
 
@@ -89,28 +90,43 @@ namespace FSharpVSPowerTools
 
             if (generalOptions.TaskListCommentsEnabled)
             {
-                try
-                {
-                    var componentModel = GetService(typeof(SComponentModel)) as IComponentModel;
-                    taskListCommentManager = componentModel.DefaultExportProvider.GetExportedValue<CrossSolutionTaskListCommentManager>();
-                    Debug.Assert(taskListCommentManager != null, "This instance should have been MEF exported.");
-                    taskListCommentManager.Activate();
-                }
-                catch (Exception ex)
-                {
-                    LoggingModule.logException(ex);
-                }
+                SetupTaskListComments();
+            }
+        }
+
+        private void SetupTaskListComments()
+        {
+            try
+            {
+                var componentModel = GetService(typeof(SComponentModel)) as IComponentModel;
+                taskListCommentManager = componentModel.DefaultExportProvider.GetExportedValue<CrossSolutionTaskListCommentManager>();
+                Debug.Assert(taskListCommentManager != null, "This instance should have been MEF exported.");
+                taskListCommentManager.Activate();
+            }
+            catch (Exception ex)
+            {
+                LoggingModule.logException(ex);
             }
         }
 
         private void SetupReferenceMenu()
         {
             var mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            
             if (mcs != null)
             {
-                fsiReferenceMenu = new FsiReferenceCommand(DTE.Value, mcs);
-                fsiReferenceMenu.SetupCommands();
+                try
+                {
+                    var componentModel = GetService(typeof(SComponentModel)) as IComponentModel;
+                    solutionBuildEventListener = componentModel.DefaultExportProvider.GetExportedValue<SolutionBuildEventListener>();
+                    Debug.Assert(solutionBuildEventListener != null, "This instance should have been MEF exported.");
+                    
+                    fsiReferenceMenu = new FsiReferenceCommand(DTE.Value, mcs, solutionBuildEventListener);
+                    fsiReferenceMenu.SetupCommands();
+                }
+                catch (Exception ex)
+                {
+                    LoggingModule.logException(ex);
+                }
             }
         }
 
@@ -173,6 +189,8 @@ namespace FSharpVSPowerTools
                 (taskListCommentManager as IDisposable).Dispose();
             if (fsiReferenceMenu != null)
                 (fsiReferenceMenu as IDisposable).Dispose();
+            if (solutionBuildEventListener != null)
+                (solutionBuildEventListener as IDisposable).Dispose();
         }
     }
 }

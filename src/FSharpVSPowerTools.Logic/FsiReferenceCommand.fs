@@ -11,8 +11,9 @@ open VSLangProj
 open System.ComponentModel.Design
 open System.Text
 open System.Runtime.Versioning
+open Microsoft.VisualStudio.Shell.Interop
 
-type FsiReferenceCommand(dte2: DTE2, mcs: OleMenuCommandService) =
+type FsiReferenceCommand(dte2: DTE2, mcs: OleMenuCommandService, solutionBuildEventListener: SolutionBuildEventListener) =
     static let scriptFolderName = "Scripts"
     static let header = 
         String.Join(Environment.NewLine, 
@@ -192,17 +193,16 @@ type FsiReferenceCommand(dte2: DTE2, mcs: OleMenuCommandService) =
         |> Option.iter (fun project ->
             // Generate script files
             if isFSharpProject project then
-                generateFile project)        
+                generateFile project)
 
-    let onBuildDoneHandler = EnvDTE._dispBuildEvents_OnBuildDoneEventHandler (fun _ _ ->
-            dte2.Solution.Projects
-            |> Seq.cast<Project>
-            |> Seq.iter (fun project ->
-                if isFSharpProject project && containsReferenceScript project then
-                    generateFile project))
-
-    let events = dte2.Events.BuildEvents
-    do events.add_OnBuildDone onBuildDoneHandler
+    let regenerateAllReferences _ =
+        dte2.Solution.Projects
+        |> Seq.cast<Project>
+        |> Seq.iter (fun project ->
+            if isFSharpProject project && containsReferenceScript project then
+                generateFile project)
+                
+    let solutionBuildSubscription = solutionBuildEventListener.SolutionBuildDone.Subscribe regenerateAllReferences
 
     member __.SetupCommands() =
         let menuCommandID = CommandID(Constants.guidGenerateReferencesForFsiCmdSet, int Constants.cmdidGenerateReferencesForFsi)
@@ -214,5 +214,4 @@ type FsiReferenceCommand(dte2: DTE2, mcs: OleMenuCommandService) =
 
     interface IDisposable with
         member __.Dispose() = 
-            events.remove_OnBuildDone onBuildDoneHandler
-        
+            solutionBuildSubscription.Dispose()
