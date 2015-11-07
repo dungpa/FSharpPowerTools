@@ -67,6 +67,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharpVSPowerTools.Tests", 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharpVSPowerTools.Logic.VS2015", "src\FSharpVSPowerTools.Logic.VS2015\FSharpVSPowerTools.Logic.VS2015.fsproj", "{BB0C6F01-5E57-4575-A498-5DE850D9FA6C}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharpVSPowerTools.PerfTests", "tests\FSharpVSPowerTools.PerfTests\FSharpVSPowerTools.PerfTests.fsproj", "{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,16 @@ Global
 		{BB0C6F01-5E57-4575-A498-5DE850D9FA6C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{BB0C6F01-5E57-4575-A498-5DE850D9FA6C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{BB0C6F01-5E57-4575-A498-5DE850D9FA6C}.Release|x86.ActiveCfg = Release|Any CPU
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -167,5 +179,6 @@ Global
 		{D751E684-285F-494D-B402-98772A541C31} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 		{C6800510-FCD0-4301-9890-36E41DFB29BB} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 		{CA2902E0-5E1C-46EE-963D-D72BC3B6EFAA} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
+		{0B0A762B-93D1-4F35-A352-6DF2F45CF1BD} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 	EndGlobalSection
 EndGlobal

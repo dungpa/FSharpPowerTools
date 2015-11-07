@@ -5,10 +5,17 @@ nuget Fantomas
 nuget Expression.Blend.Sdk
 nuget FSharp.ViewModule.Core
 nuget FsXaml.Wpf
+nuget Microsoft.DotNet.xunit.performance.analysis
+nuget Microsoft.DotNet.xunit.performance.runner.Windows
 nuget SourceLink.SymbolStore 0.5.0
 nuget FSharpLint.Core prerelease
 nuget VSSDK.IDE.Deploy.14
 nuget FSharp.Management
+
+source https://www.myget.org/F/dotnet-buildtools/api/v2	
+
+nuget Microsoft.DotNet.xunit.performance
+nuget xunit
 
 group Test
 source http://nuget.org/api/v2
