@@ -50,8 +50,41 @@ type SyntaxConstructClassifierHelper() =
 module SyntaxConstructClassifierTests =
     
     let helper = new SyntaxConstructClassifierHelper()
-  
+
     [<Benchmark>]
+    let ``should be able to get classification spans for unused items``() = 
+      Benchmark.Iterate (fun () ->
+        let content = """
+open System
+open System.Collections.Generic
+let internal f() = ()
+"""
+        let fileName = getTempFileName ".fsx"
+        let buffer = createMockTextBuffer content fileName
+        // IsSymbolUsedForProject seems to require a file to exist on disks
+        // If not, type checking fails with some weird errors
+        File.WriteAllText(fileName, "")
+        helper.SetUpProjectAndCurrentDocument(createVirtualProject(buffer, fileName), fileName)
+        let classifier = helper.GetClassifier(buffer)
+
+        // first event is raised when "fast computable" spans (without Unused declarations and opens) are ready
+        testEvent classifier.ClassificationChanged "Timed out before classification changed" timeout <| fun _ ->
+            helper.ClassificationSpansOf(buffer, classifier)
+            |> Seq.toList
+            |> assertEqual
+                [ { Classification = "FSharp.Function"; Span = (4, 14) => (4, 14) }
+                  { Classification = "FSharp.Operator"; Span = (4, 18) => (4, 18) } ]
+
+        // second event is raised when all spans, including Unused are ready
+        testEvent classifier.ClassificationChanged "Timed out before classification changed" timeout <| fun _ ->
+            let actual = helper.ClassificationSpansOf(buffer, classifier) |> Seq.toList
+            let expected =
+                [ { Classification = "FSharp.Unused"; Span = (2, 6) => (2, 11) }
+                  { Classification = "FSharp.Unused"; Span = (3, 6) => (3, 31) }
+                  { Classification = "FSharp.Unused"; Span = (4, 14) => (4, 14) }
+                  { Classification = "FSharp.Operator"; Span = (4, 18) => (4, 18) } ]
+            actual |> assertEqual expected)
+  
     let ``should be able to get classification spans for provided types``() = 
       Benchmark.Iterate (fun () ->
         let content = """
