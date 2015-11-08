@@ -12,6 +12,37 @@ NUGET
     FsXaml.Wpf (0.9.9)
       Expression.Blend.Sdk (>= 1.0.2) - framework: >= net45
     SourceLink.SymbolStore (0.5.0)
+    VSSDK.IDE.14 (14.0.4-preview)
+    VSSDK.IDE.Deploy.14 (14.0.4-preview)
+      VSSDK.IDE.14 (>= 14.0.4-preview < 15.0.0)
+
+GROUP Benchmark
+NUGET
+  remote: https://www.myget.org/F/dotnet-buildtools/api/v2
+  specs:
+    Microsoft.DotNet.xunit.performance (1.0.0-alpha-build0026)
+      System.Collections (>= 4.0.10) - framework: dnxcore50
+      System.Diagnostics.Debug (>= 4.0.10) - framework: dnxcore50
+      System.Diagnostics.Tracing (>= 4.0.20) - framework: dnxcore50
+      System.Globalization (>= 4.0.10) - framework: dnxcore50
+      System.IO (>= 4.0.10) - framework: dnxcore50
+      System.IO.FileSystem (>= 4.0.0) - framework: dnxcore50
+      System.IO.FileSystem.Primitives (>= 4.0.0) - framework: dnxcore50
+      System.Linq (>= 4.0.0) - framework: dnxcore50
+      System.Reflection (>= 4.0.10) - framework: dnxcore50
+      System.Runtime (>= 4.0.20) - framework: dnxcore50
+      System.Runtime.Extensions (>= 4.0.10) - framework: dnxcore50
+      System.Text.Encoding (>= 4.0.10) - framework: dnxcore50
+      System.Threading (>= 4.0.10) - framework: dnxcore50
+      System.Threading.Tasks (>= 4.0.10) - framework: dnxcore50
+      xunit.abstractions (>= 2.0.0) - framework: dnxcore50
+      xunit.extensibility.core (>= 2.1.0) - framework: dnxcore50
+      xunit.extensibility.execution (>= 2.1.0) - framework: dnxcore50
+    Microsoft.DotNet.xunit.performance.analysis (1.0.0-alpha-build0026)
+    Microsoft.DotNet.xunit.performance.runner.Windows (1.0.0-alpha-build0026)
+      xunit.runner.console (>= 2.1.0)
+  remote: http://nuget.org/api/v2
+  specs:
     System.Collections (4.0.10) - framework: dnxcore50
       System.Diagnostics.Debug (>= 4.0.0) - framework: dnxcore50
       System.Resources.ResourceManager (>= 4.0.0) - framework: dnxcore50
@@ -191,9 +222,6 @@ NUGET
       System.Threading (>= 4.0.10) - framework: dnxcore50
     System.Threading.Tasks (4.0.10) - framework: dnxcore50
       System.Runtime (>= 4.0.0) - framework: dnxcore50
-    VSSDK.IDE.14 (14.0.4-preview)
-    VSSDK.IDE.Deploy.14 (14.0.4-preview)
-      VSSDK.IDE.14 (>= 14.0.4-preview < 15.0.0)
     xunit (2.1.0)
       xunit.assert (2.1.0)
       xunit.core (2.1.0)
@@ -242,29 +270,6 @@ NUGET
       xunit.abstractions (>= 2.0.0) - framework: dnxcore50
       xunit.extensibility.core (2.1.0) - framework: dnx451, dnxcore50, monoandroid, monotouch, xamarinios, winv4.5, wpv8.1, wpv8.0, >= net45
     xunit.runner.console (2.1.0)
-  remote: https://www.myget.org/F/dotnet-buildtools/api/v2
-  specs:
-    Microsoft.DotNet.xunit.performance (1.0.0-alpha-build0026)
-      System.Collections (>= 4.0.10) - framework: dnxcore50
-      System.Diagnostics.Debug (>= 4.0.10) - framework: dnxcore50
-      System.Diagnostics.Tracing (>= 4.0.20) - framework: dnxcore50
-      System.Globalization (>= 4.0.10) - framework: dnxcore50
-      System.IO (>= 4.0.10) - framework: dnxcore50
-      System.IO.FileSystem (>= 4.0.0) - framework: dnxcore50
-      System.IO.FileSystem.Primitives (>= 4.0.0) - framework: dnxcore50
-      System.Linq (>= 4.0.0) - framework: dnxcore50
-      System.Reflection (>= 4.0.10) - framework: dnxcore50
-      System.Runtime (>= 4.0.20) - framework: dnxcore50
-      System.Runtime.Extensions (>= 4.0.10) - framework: dnxcore50
-      System.Text.Encoding (>= 4.0.10) - framework: dnxcore50
-      System.Threading (>= 4.0.10) - framework: dnxcore50
-      System.Threading.Tasks (>= 4.0.10) - framework: dnxcore50
-      xunit.abstractions (>= 2.0.0) - framework: dnxcore50
-      xunit.extensibility.core (>= 2.1.0) - framework: dnxcore50
-      xunit.extensibility.execution (>= 2.1.0) - framework: dnxcore50
-    Microsoft.DotNet.xunit.performance.analysis (1.0.0-alpha-build0026)
-    Microsoft.DotNet.xunit.performance.runner.Windows (1.0.0-alpha-build0026)
-      xunit.runner.console (>= 2.1.0)
 
 GROUP Build
 NUGET

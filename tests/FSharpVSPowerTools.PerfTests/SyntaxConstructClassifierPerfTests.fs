@@ -47,6 +47,7 @@ type SyntaxConstructClassifierHelper() =
         member __.Dispose() = 
             classifierProvider.Dispose()
 
+[<MeasureGCCounts; MeasureInstructionsRetired>]
 module SyntaxConstructClassifierTests =
     
     let helper = new SyntaxConstructClassifierHelper()
@@ -83,7 +84,8 @@ let internal f() = ()
                   { Classification = "FSharp.Unused"; Span = (3, 6) => (3, 31) }
                   { Classification = "FSharp.Unused"; Span = (4, 14) => (4, 14) }
                   { Classification = "FSharp.Operator"; Span = (4, 18) => (4, 18) } ]
-            actual |> assertEqual expected)
+            actual |> assertEqual expected
+        File.Delete(fileName))
   
     let ``should be able to get classification spans for provided types``() = 
       Benchmark.Iterate (fun () ->

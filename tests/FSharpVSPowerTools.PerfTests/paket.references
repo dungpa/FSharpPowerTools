@@ -1,3 +1,4 @@
+group Benchmark
 Microsoft.DotNet.xunit.performance
 xunit
 Microsoft.DotNet.xunit.performance.analysis
