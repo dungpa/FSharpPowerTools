@@ -66,7 +66,14 @@ type GoToDefinitionFilter
                 match symbolUse with
                 | Some (fsSymbolUse, fileScopedCheckResults) ->
                     let lineStr = span.Start.GetContainingLine().GetText()
-                    let! findDeclResult = fileScopedCheckResults.GetDeclarationLocation(symbol.Line, symbol.RightColumn, lineStr, symbol.Text, preferSignature=false)
+                    let preferSignature =
+                        // IsFromDefinition doesn't seem to work, so we manually check whether the symbol is at its declaration site
+                        let declSpan = fromFSharpRange view.TextBuffer.CurrentSnapshot fsSymbolUse.RangeAlternate
+                        if declSpan |> Option.map span.OverlapsWith |> Option.getOrElse false then
+                            isSourceFile textDocument.FilePath
+                        else
+                            isSignatureFile textDocument.FilePath
+                    let! findDeclResult = fileScopedCheckResults.GetDeclarationLocation(symbol.Line, symbol.RightColumn, lineStr, symbol.Text, preferSignature)
                     return Some (project, fileScopedCheckResults.ParseTree, span, fsSymbolUse, findDeclResult) 
                 | None -> return None
             | None -> return None
@@ -412,7 +419,6 @@ type GoToDefinitionFilter
             async {
                 let! symbolResult = getDocumentState()
                 match symbolResult with
-                | Some (_, _, _, _, FSharpFindDeclResult.DeclFound _) 
                 | None ->
                     // no FSharpSymbol found, here we look at #load directive
                     let! directive = 
@@ -429,6 +435,9 @@ type GoToDefinitionFilter
                         do! Async.SwitchToContext uiContext
                         // Declaration location might exist so let Visual F# Tools handle it. 
                         return continueCommandChain()
+                | Some (_, _, _, _, FSharpFindDeclResult.DeclFound r) ->
+                    let (startRow, startCol) = (r.StartLine-1, r.StartColumn)
+                    serviceProvider.NavigateTo(r.FileName, startRow, startCol, startRow, startCol)
                 | Some (project, parseTree, span, fsSymbolUse, FSharpFindDeclResult.DeclNotFound _) ->
                     match navigationPreference with
                     | NavigationPreference.Metadata ->
